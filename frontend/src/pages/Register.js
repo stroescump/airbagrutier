@@ -4,6 +4,7 @@ import { A } from 'hookrouter';
 import { Image } from 'react-bootstrap';
 import imgLogin from '../images/logo-airbag.png'
 import axios from 'axios';
+import { createBrowserHistory } from "history";
 require('dotenv').config();
 
 export default function Register() {
@@ -90,7 +91,7 @@ export default function Register() {
                             </div>
                         </form>
                         <p className="login-wrapper">
-                            <A href="/login" className="ml">Login</A>
+                            <a href="/login" className="ml">Login</a>
                         </p>
                     </div>
                 </div>

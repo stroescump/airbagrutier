@@ -1,10 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './App.css';
-import Button from 'react-bootstrap/Button'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useState } from 'react';
 import Navigation from './Navigation';
-import { Router, Route } from 'react-router';
+import { BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+  useHistory,
+  useLocation} from 'react-router-dom';
 import { useRoutes } from 'hookrouter';
 import { Acasa } from './pages/Acasa';
 import  {Contact}  from './pages/Contact';
@@ -15,7 +19,6 @@ import { User } from './pages/User';
 import { NotFound } from './pages/NotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
 
 const routes = {
   '/': () => <Acasa />,
@@ -26,10 +29,9 @@ const routes = {
   '/user': () => <User />,
   '/login': () => <Login />,
   '/register': () => <Register />,
-  '/forgot-password': () => <ForgotPassword />
 }
 
-function App() {
+export default function App() {
   const match = useRoutes(routes);
   return (
     <div className="App">
@@ -41,5 +43,7 @@ function App() {
   )
 }
 
-export default App;
+
+
+
 

@@ -8,6 +8,7 @@ const nodemailer = require('nodemailer');
 const credentials = require('./config');
 const User = require('./models/user');
 const jwt = require('jsonwebtoken');
+const fileUpload = require('express-fileupload')
 
 let transport = {
     host: 'mail.thevide.ro',
@@ -18,18 +19,19 @@ let transport = {
     }
 }
 
-let transporter = nodemailer.createTransport(transport)
+// let transporter = nodemailer.createTransport(transport)
 
-transporter.verify((err, succes) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log('Server is ready to recieve messages!');
-    }
-})
+// transporter.verify((err, succes) => {
+//     if (err) {
+//         console.log(err);
+//     } else {
+//         console.log('Server is ready to recieve messages!');
+//     }
+// })
 
 app.use(cors());
 app.use(express.json());
+app.use(fileUpload())
 const users = []
 
 mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true })
@@ -73,15 +75,31 @@ app.post('/verify-login', async (req, res, next) => {
         const userToBeLogged = await User.findOne({
             email: req.body.email
         });
-        if(userToBeLogged!=null){
-            if(req.body.token === userToBeLogged.token){
-                res.json(message="Autentificat cu succes").status(200);
-            }else{
-                res.json(message="Token invalid").status(400);
+        if (userToBeLogged != null) {
+            if (req.body.token === userToBeLogged.token) {
+                res.json(message = "Autentificat cu succes").status(200);
+            } else {
+                res.json(message = "Token invalid").status(400);
             }
         }
     } catch (err) {
         console.log(err)
     }
+})
+
+app.post('/incarca-documente', (req, res) => {
+    console.log(req.files)
+    if(!req.files || Object.keys(req.files).length===0){
+        return res.status(400).json("Aia e coimiu, na mers")
+    }
+
+    let sampleFile = req.files.sampleFile;
+    console.log(process.env.FILEUPLOAD_LOCATION2)
+    sampleFile.mv(process.env.FILEUPLOAD_LOCATION2,(err)=>{
+        if(err){
+            return res.status(500).send(err);
+        }
+        res.send('File uploaded!')
+    })
 })
 app.listen(process.env.PORT || '3000')

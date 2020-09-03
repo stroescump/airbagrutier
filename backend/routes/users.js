@@ -18,7 +18,7 @@ let transport = {
     }
 }
 
-let transporter = nodemailer.createTransport(transport)
+// let transporter = nodemailer.createTransport(transport)
 
 // transporter.verify((err, succes) => {
 //     if (err) {

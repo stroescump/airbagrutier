@@ -1,7 +1,9 @@
 import React from 'react';
 import { Table, Button } from 'react-bootstrap';
+require('dotenv').config()
 
 export const IncarcaDocumente = () => {
+    const urlForUpload = process.env.REACT_APP_URL_UPLOADFILES
     return (
         <>
             <Table bordered hover
@@ -39,8 +41,20 @@ export const IncarcaDocumente = () => {
                     </tr>
                 </tbody>
             </Table>
-            <form>
-                <div class="custom-file"
+            <form  
+      id='uploadForm' 
+      action={urlForUpload} 
+      method='post' 
+      encType="multipart/form-data">
+        <input type="file" name="sampleFile" />
+        <input type='submit' value='Upload!' />
+    </form>   
+            {/* <form 
+                id='uploadForm'
+                action={urlForUpload}
+                method='post'
+                encType="multipart/form-data">
+                <div className="custom-file"
                     style={{
                         display: "block",
                         width: "43.4%",
@@ -48,15 +62,16 @@ export const IncarcaDocumente = () => {
                         marginTop: "20px"
                     }}>
                     <input type="file"
-                        class="custom-file-input"
+                        name="uploadFile"
+                        className="custom-file-input"
                         id="customFile"
                         style={{
                             marginTop: "10px"
                         }} />
-                    <label class="custom-file-label" for="customFile">Choose file</label>
-                    <Button variant="outline-primary" size="lg" block>Incarca</Button>
+                    <label className="custom-file-label" for="customFile">Choose file</label>
+                    <Button type='submit' variant="outline-primary" size="lg" block>Incarca</Button>
                 </div>
-            </form>
+            </form> */}
         </>
     )
 }
