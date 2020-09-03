@@ -2,6 +2,12 @@ import React from 'react';
 
 export const NotFound = () => {
     return(
-        <h1>404 NOT FOUND</h1>
+        <div style={{
+            display:"block",
+            marginTop:"30px",
+            textAlign:"center"
+        }}>
+            <h1>404 - Upssss, aceasta pagina nu exista.</h1>
+        </div>
     )
 }

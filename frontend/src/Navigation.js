@@ -44,8 +44,6 @@ function Navigation() {
             <NavDropdown title="Cont" id="basic-nav-dropdown">
               <NavDropdown.Item onClick={handleClickLogin} href="/login">{isLogged == true ? "Log out" : "Login"}</NavDropdown.Item>
               <NavDropdown.Item href="/register">Inregistrare</NavDropdown.Item>
-              <NavDropdown.Item href="/forgot-password">Am uitat parola</NavDropdown.Item>
-
               <NavDropdown.Item href="/incarca-documente">Incarca document</NavDropdown.Item>
               <NavDropdown.Item href="/status-actiuni">Status actiuni</NavDropdown.Item>
             </NavDropdown>

@@ -7,6 +7,8 @@ const cors = require('cors')
 const nodemailer = require('nodemailer');
 const credentials = require('./config');
 const User = require('./models/user');
+const Document = require('./models/document');
+const Task = require('./models/task');
 const jwt = require('jsonwebtoken');
 const multer  = require('multer');
 const path = require('path');
@@ -20,15 +22,15 @@ let transport = {
     }
 }
 
-// let transporter = nodemailer.createTransport(transport)
+let transporter = nodemailer.createTransport(transport)
 
-// transporter.verify((err, succes) => {
-//     if (err) {
-//         console.log(err);
-//     } else {
-//         console.log('Server is ready to recieve messages!');
-//     }
-// })
+transporter.verify((err, succes) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log('Server is ready to recieve messages!');
+    }
+})
 
 app.use(cors());
 app.use(express.json());
@@ -41,7 +43,12 @@ db.on('error', (error) => console.error(error))
 db.once('open', () => console.log('Connected to Database'))
 
 const usersRouter = require('./routes/users')
+const documentsRouter = require('./routes/documents')
+const tasksRouter = require('./routes/tasks')
+
 app.use('/users', usersRouter)
+app.use('/documents', documentsRouter)
+app.use('/tasks', usersRouter)
 
 app.get('/users', (req, res) => {
     res.json(users)
@@ -94,7 +101,7 @@ const storage = multer.diskStorage({
     },
     filename: (req,file,cb) =>{
         console.log(file);
-        cb(null,Date.now()+ path.extname(file.originalname));
+        cb(null,file.originalname);
     }
 });
 

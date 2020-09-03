@@ -1,21 +1,82 @@
-import React, { useEffect, Component } from 'react';
+import React, { Component, useContext } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import Axios from 'axios';
 import bsCustomFileInput from 'bs-custom-file-input'
 import $ from 'jquery'
+import TableElement from '../components/TableElement';
+import ApplicationContext from '../App'
 
 require('dotenv').config()
 
 export class IncarcaDocumente extends Component {
+    static contextType = ApplicationContext;
+    
+    constructor(props) {
+        super(props);
+        this.state = {
+            isLogged: null,
+            email:null,
+            documents: [],
+            tableElements:[]
+        };
+    }
+
+    addEntriesToTable() {
+        // console.log(this.context.isLogged);
+        // console.log(this.email);
+        var i=0;
+        this.state.documents.forEach(document =>{
+            var tableElement = React.createElement(TableElement,{
+                nrCrt:i++,
+                name:document.name,
+                author:document.author,
+                dateUploaded: new Date(document.dateUploaded).toLocaleDateString()
+            })
+            this.state.tableElements.push(tableElement)
+        });
+        return this.state.tableElements;
+    }
+
+    async getAllFiles() {
+        console.log(process.env.REACT_APP_URL_GETFILES)
+        await Axios.post(process.env.REACT_APP_URL_GETFILES,
+            {
+                email: "stroescump@icloud.com"
+            }).then((res) => {
+                this.setState({
+                    documents:res.data
+                });
+                // console.log(this.state.documents)
+            })
+    }
 
     componentDidMount() {
         $(document).ready(function () {
             bsCustomFileInput.init()
         })
+        this.setState({
+            isLogged:this.context.isLogged
+        })
+        this.getAllFiles();
     }
-    
+
+    onClickUploadBtn(e){
+        e.preventDefault()
+        const fileName = e.target.file.value.split("\\")
+        Axios.post(
+            process.env.REACT_APP_URL_POSTFILES,
+            {
+                name:fileName,
+                author:"",
+                dateUploaded:new Date().toLocaleTimeString,
+                email:""
+            }
+        )
+        this.getAllFiles();
+    }
 
     render() {
+
         const urlForUpload = process.env.REACT_APP_URL_UPLOADFILES
         return (
             <>
@@ -33,31 +94,15 @@ export class IncarcaDocumente extends Component {
                             <th>Data incarcarii</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Document 1.pdf</td>
-                            <td>Catalin Lungu</td>
-                            <td>12/12/2020</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Document 2.docx</td>
-                            <td>Catalin Lungu</td>
-                            <td>11/12/2020</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Document 3.png</td>
-                            <td>Popescu Ionut</td>
-                            <td>14/12/2020</td>
-                        </tr>
+                    <tbody className="wrapper-document-entries" id="tableDocument">
+                        {this.addEntriesToTable()}
                     </tbody>
                 </Table>
                 <form
                     id='uploadForm'
                     action={urlForUpload}
                     method='post'
+                    onSubmit={this.onClickUploadBtn.bind(this)}
                     encType="multipart/form-data">
                     <div className="custom-file"
                         style={{

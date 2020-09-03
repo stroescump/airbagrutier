@@ -18,7 +18,7 @@ let transport = {
     }
 }
 
-// let transporter = nodemailer.createTransport(transport)
+let transporter = nodemailer.createTransport(transport)
 
 // transporter.verify((err, succes) => {
 //     if (err) {
@@ -73,7 +73,7 @@ router.post('/login', async (req, res) => {
         console.log(updatedUser)
 
         var mail = {
-            from: 'The ViDE',
+            from: "office@thevide.ro",
             to: req.body.email,
             subject: `Cod de autentificare AIRBAG RUTIER`,
             text: content

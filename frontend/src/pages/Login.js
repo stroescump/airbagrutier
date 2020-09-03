@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button } from 'react-bootstrap';
-import { A } from 'hookrouter';
+import { useHistory } from "react-router-dom";
 import { Image } from 'react-bootstrap';
 import imgLogin from '../images/logo-airbag.png'
 import Axios from 'axios';
+import {ApplicationContext} from '../App'
 require('dotenv').config();
 
 export default function Login() {
-  var [isLogging, setIsLogging] = useState(false);
-  var [email, setEmail] = useState('');
-  var [token, setToken] = useState('');
+  let history = useHistory();
+  const appContext = useContext(ApplicationContext)
+  const [email, setEmail] = useState(appContext.email)
+  const [token, setToken] = useState('');
+  
 
-  function onClickLogin() {
+  function onClickLogin(e) {
+    e.preventDefault()
     Axios.post(process.env.REACT_APP_URL_LOGIN,
       {
         email: email
       }).then((res) => {
-        if (res.status != 200) {
+        if (res.status !== 200) {
           alert("Cod introdus gresit, va rugam reincercati!")
         } else {
           onTokenSendSuccessfuly();
@@ -30,7 +34,7 @@ export default function Login() {
         email: email,
         token: token
       }).then((res) => {
-        if (res.status != 200) {
+        if (res.status !== 200) {
           alert("Cod introdus gresit, va rugam reincercati!")
         } else {
           onLoggedSuccessful();
@@ -40,11 +44,13 @@ export default function Login() {
   
   function onTokenSendSuccessfuly(){
     alert("In continuare, verifica email-ul si introdu codul pentru a te autentifica.")
-    setIsLogging(true);
   }
 
   function onLoggedSuccessful() {
     alert("Bine ai venit, "+email+" !");
+    appContext.setIsLogged(true)
+    appContext.setEmail(email)
+    history.push('/status-actiuni')
   }
 
   function onChangeEmail(e) {
@@ -67,13 +73,13 @@ export default function Login() {
                 style={{ borderRadius: 1, borderColor: "#007bff", borderStyle: "groove", marginTop: "25px" }} />
             </div>
             <div>
-              {isLogging != true ?
+              {appContext.isLogged != true ?
               <div>
                 <h1 className="login">Log in</h1>
-                <form action="submit">
+                <form action="/login" onSubmit={e => onClickLogin(e)}>
                   <div className="form-email" style={{ marginBottom: "10px" }}>
                     <label for="email">Email</label>
-                    <input type="email"
+                    <input type="text"
                       name="email"
                       id="email"
                       className="form-control"
@@ -82,13 +88,13 @@ export default function Login() {
                       placeholder="email@example.com"></input>
                   </div>
                   <div className="btn-login-wrapper" >
-                    <Button variant="outline-primary" onClick={onClickLogin} size="lg" block style={{ marginBottom: "5px" }}>Login</Button>
+                    <Button variant="outline-primary" type="submit" size="lg" block style={{ marginBottom: "5px" }}>Login</Button>
                   </div>
                 </form>
                 </div> : ""}
             </div>
             <div>
-              {isLogging == true ?
+              {appContext.isLogged == true ?
               <div className="wrapper-verify-form">
               <div className="form-verify-login" style={{ marginBottom: "10px" }}>
                     <label for="token" style={{
