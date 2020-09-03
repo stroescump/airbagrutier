@@ -8,7 +8,8 @@ const nodemailer = require('nodemailer');
 const credentials = require('./config');
 const User = require('./models/user');
 const jwt = require('jsonwebtoken');
-const fileUpload = require('express-fileupload')
+const multer  = require('multer');
+const path = require('path');
 
 let transport = {
     host: 'mail.thevide.ro',
@@ -31,7 +32,7 @@ let transport = {
 
 app.use(cors());
 app.use(express.json());
-app.use(fileUpload())
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 const users = []
 
 mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true })
@@ -87,19 +88,38 @@ app.post('/verify-login', async (req, res, next) => {
     }
 })
 
-app.post('/incarca-documente', (req, res) => {
-    console.log(req.files)
-    if(!req.files || Object.keys(req.files).length===0){
-        return res.status(400).json("Aia e coimiu, na mers")
+const storage = multer.diskStorage({
+    destination: (req,file,cb)=>{
+        cb(null,'uploads');
+    },
+    filename: (req,file,cb) =>{
+        console.log(file);
+        cb(null,Date.now()+ path.extname(file.originalname));
     }
+});
 
-    let sampleFile = req.files.sampleFile;
-    console.log(process.env.FILEUPLOAD_LOCATION2)
-    sampleFile.mv(process.env.FILEUPLOAD_LOCATION2,(err)=>{
-        if(err){
-            return res.status(500).send(err);
-        }
-        res.send('File uploaded!')
-    })
+const fileFilter = (req,file,cb)=>{
+    if(file.mimetype =='image/jpeg' || 
+    file.mimetype=='image/png' || 
+    file.mimetype =='application/pdf' || 
+    file.mimetype=='application/msword' || 
+    file.mimetype=='application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    file.mimetype=='application/vnd.ms-excel' ||
+    file.mimetype=='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'||
+    file.mimetype=='application/zip'){
+        cb(null,true);
+    }else{
+        cb(null,false);
+    }
+}
+
+const upload = multer({storage:storage, fileFilter:fileFilter});
+
+app.post('/incarca-documente', upload.single('file'), (req, res) => {
+    try{
+        return res.sendStatus(201);
+    }catch(err){
+        console.log(err);
+    }
 })
 app.listen(process.env.PORT || '3000')
