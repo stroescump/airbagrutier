@@ -4,10 +4,11 @@ import { A } from 'hookrouter';
 import { Image } from 'react-bootstrap';
 import imgLogin from '../images/logo-airbag.png'
 import axios from 'axios';
-import { createBrowserHistory } from "history";
+import { useHistory, Link } from "react-router-dom";
 require('dotenv').config();
 
 export default function Register() {
+    let history = useHistory();
     var [name, setName] = useState('');
     var [email, setEmail] = useState('');
     var [phone, setPhone] = useState('');
@@ -28,6 +29,7 @@ export default function Register() {
                 alert("Inregistrarea a esuat!")
             } else {
                 alert("Te-ai inregistrat cu success!")
+                history.push("/login")
             }
         })
     }
@@ -91,7 +93,7 @@ export default function Register() {
                             </div>
                         </form>
                         <p className="login-wrapper">
-                            <a href="/login" className="ml">Login</a>
+                            <Link to="/login" className="ml">Login</Link>
                         </p>
                     </div>
                 </div>

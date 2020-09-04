@@ -1,33 +1,21 @@
-import React, { useEffect, useState, Link } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import './App.css';
 import Button from 'react-bootstrap/Button'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Navbar, Nav, NavDropdown, Form, FormControl, Container } from 'react-bootstrap';
-import { A } from 'hookrouter';
+import { Link } from 'react-router-dom'
+import { ApplicationContext } from './App'
 require('dotenv').config();
 
+
+
 function Navigation() {
-  let [users, updateUsers] = useState([]);
-  let [isLogged, setIsLogged] = useState(false);
-  useEffect(() => {
-    fetch(process.env.REACT_APP_URL_REGISTER)
-      .then((res) => res.json())
-      .then((usersDB) => {
-        updateUsers(usersDB)
-      })
-  }, []);
-
-  function handleClick() {
-    console.log(users.length);
-  }
-
-  function handleClickLogin() {
-    setIsLogged(!isLogged);
-  }
+  const appContext = useContext(ApplicationContext);
+  var isLogged = appContext.isLogged
 
   return (
     <Container style={{
-      maxWidth:"100%"
+      maxWidth: "100%"
     }}>
       <Navbar expand="lg" style={{
         border: "1.5px",
@@ -40,20 +28,24 @@ function Navigation() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-            <Nav.Link href="/">Acasa</Nav.Link>
+            <Link to="/" class="nav-link">Acasa</Link>
             <NavDropdown title="Cont" id="basic-nav-dropdown">
-              <NavDropdown.Item onClick={handleClickLogin} href="/login">{isLogged == true ? "Log out" : "Login"}</NavDropdown.Item>
-              <NavDropdown.Item href="/register">Inregistrare</NavDropdown.Item>
-              <NavDropdown.Item href="/incarca-documente">Incarca document</NavDropdown.Item>
-              <NavDropdown.Item href="/status-actiuni">Status actiuni</NavDropdown.Item>
+              <Link to="/login" onClick={(e)=>{
+                if(isLogged===true) e.currentTarget.innerHTML="Log out"
+                else e.currentTarget.innerHTML="Login"
+                if(isLogged===true && e.currentTarget.innerHTML==="Log out") e.currentTarget.innerHTML="Login"
+              }} class="dropdown-item">{isLogged===true ? "Log out" : "Login"}</Link>
+              {console.log(isLogged)}              
+              {isLogged === true ? "" : <Link to="/register" class="dropdown-item">Inregistrare</Link> }
+              {isLogged === true ? <Link to="/incarca-documente" class="dropdown-item">Incarca document</Link> : ""}
+              {isLogged === true ? <Link to="/status-actiuni" class="dropdown-item">Status actiuni</Link> : ""}
             </NavDropdown>
-            <Nav.Link href="/echipa">Echipa</Nav.Link>
-            <Nav.Link href="/contact">Contact</Nav.Link>
+            <Link to="/echipa" class="nav-link">Echipa</Link>
+            <Link to="/contact" class="nav-link">Contact</Link>
           </Nav>
           <Form inline>
             <FormControl type="text" placeholder="Cauta" className="mr-sm-2" />
             <Button variant="outline-primary" className="mr-2">Cauta</Button>
-            <Button variant="outline-primary" onClick={handleClick}>Query DB</Button>
           </Form>
         </Navbar.Collapse>
       </Navbar>

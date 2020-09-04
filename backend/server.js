@@ -45,6 +45,7 @@ db.once('open', () => console.log('Connected to Database'))
 const usersRouter = require('./routes/users')
 const documentsRouter = require('./routes/documents')
 const tasksRouter = require('./routes/tasks')
+const user = require('./models/user')
 
 app.use('/users', usersRouter)
 app.use('/documents', documentsRouter)
@@ -84,10 +85,12 @@ app.post('/verify-login', async (req, res, next) => {
             email: req.body.email
         });
         if (userToBeLogged != null) {
-            if (req.body.token === userToBeLogged.token) {
-                res.json(message = "Autentificat cu succes").status(200);
+            const name = userToBeLogged.name;
+            if (req.body.token == userToBeLogged.token) {
+                res.status(200).json(name);
+                console.log(name);
             } else {
-                res.json(message = "Token invalid").status(400);
+                res.status(400).json(message = "Token invalid");
             }
         }
     } catch (err) {
