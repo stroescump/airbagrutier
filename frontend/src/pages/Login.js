@@ -34,14 +34,17 @@ export default function Login() {
     Axios.post(process.env.REACT_APP_URL_VERIFYLOGIN,
       {
         email: email,
-        token: token
+        token: token,
+      },{
+        withCredentials:true
       }).then((res, err) => {
         // console.log(res);
         if (res.status == 200) {
-          alert("Bine ai venit, " + res.data + " !");
+          // alert("Bine ai venit, " + res.data.name + " !");
+          // console.log(res.data.name)
           appContext.setIsLogged(true)
           appContext.setEmail(email)
-          appContext.setName(res.data)
+          appContext.setName(res.data.name)
           history.push('/status-actiuni')
         }
       }, (res) => {
@@ -56,10 +59,6 @@ export default function Login() {
   function onTokenSendSuccessfuly() {
     // alert("In continuare, verifica email-ul si introdu codul pentru a te autentifica.");
     setIsTryingToLogin(true);
-  }
-
-  function onLoggedSuccessful() {
-
   }
 
   function onChangeEmail(e) {

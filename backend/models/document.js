@@ -13,7 +13,7 @@ const documentSchema = new mongoose.Schema({
         type:Date,
         required:true,
     },
-    email:{
+    userId:{
         type:String,
         required:true
     }

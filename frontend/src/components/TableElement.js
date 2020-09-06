@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 
-export default function TableElement(props) {
-    return (
-        <tr>
-            <td>{props.nrCrt}</td>
-            <td>{props.name}</td>
-            <td>{props.author}</td>
-            <td>{props.dateUploaded}</td>
-        </tr>
-    )
-
+export default class TableElement extends React.Component {
+    render(){
+        return (
+            <tr>
+                <td>{this.props.nrCrt}</td>
+                <td>{this.props.name}</td>
+                <td>{this.props.author}</td>
+                <td>{this.props.dateUploaded}</td>
+            </tr>
+        );
+    }
 }

@@ -9,10 +9,12 @@ import { ApplicationContext } from '../App'
 require('dotenv').config()
 
 export default function IncarcaDocumente() {
+    const appContext = useContext(ApplicationContext)
     const [tableElements, setTableElements] = useState([])
     const [documents, setDocuments] = useState([])
-    const isLogged = useContext(ApplicationContext).isLogged;
-    const email = useContext(ApplicationContext).email;
+    const isLogged = appContext.isLogged;
+    const email = appContext.email;
+
     var i = 0;
     var payload;
 
@@ -26,8 +28,7 @@ export default function IncarcaDocumente() {
     function addEntriesToTable() {
         console.log(isLogged);
         console.log(email);
-        
-        
+
         documents.forEach(document => {
             var tableElement = React.createElement(TableElement, {
                 nrCrt: ++i,
@@ -37,46 +38,46 @@ export default function IncarcaDocumente() {
             })
             tableElements.push(tableElement)
         });
+        // setDocuments(documents.splice(0,documents.length));
         return tableElements;
     }
 
-    async function getAllFiles() {
-        // setDocuments([])
+    function getAllFiles() {
         console.log(process.env.REACT_APP_URL_GETFILES)
-        await Axios.post(process.env.REACT_APP_URL_GETFILES,
-            {
-                email: email
-            }).then((res) => {
-                setDocuments(res.data)
-                // console.log(this.state.documents)
-            })
+        Axios.get(process.env.REACT_APP_URL_GETFILES).then((res) => {
+            setDocuments(res.data.docs)
+            // console.log(this.state.documents)
+        })
     }
 
     function onClickUploadBtn(e) {
+        // $(document.querySelectorAll('#tableDocument')).remove();
+        // getAllFiles();
+        // addEntriesToTable();
         e.preventDefault()
         const fileName = e.target.file.value.split("\\")
         payload = {
             name: fileName[2],
-            author: email,
+            author: appContext.name,
             dateUploaded: new Date().toLocaleDateString(),
-            email: email
+            email: email,
         };
         // console.log(payload)
         Axios.post(
             process.env.REACT_APP_URL_POSTFILES,
-            payload
-        )
+            payload)
+
     }
 
-    function addingTabs(payload){
-        var tableElement = React.createElement(TableElement, {
-            nrCrt: ++i,
-            name: payload.name,
-            author: payload.email,
-            dateUploaded: payload.dateUploaded
-        })
-        return tableElement;
-    }
+    // function addingTabs(payload) {
+    //     var tableElement = React.createElement(TableElement, {
+    //         nrCrt: ++i,
+    //         name: payload.name,
+    //         author: payload.email,
+    //         dateUploaded: payload.dateUploaded
+    //     })
+    //     return tableElement;
+    // }
 
     const urlForUpload = process.env.REACT_APP_URL_UPLOADFILES
     return (
@@ -127,7 +128,7 @@ export default function IncarcaDocumente() {
             </div>
             :
             <div style={{
-                marginTop:"20px",
+                marginTop: "20px",
                 textAlign: "center"
             }}>
                 <h2>Trebuie sa fii logat pentru a putea incarca documente.</h2>

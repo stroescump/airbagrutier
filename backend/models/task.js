@@ -13,10 +13,9 @@ const taskSchema = new mongoose.Schema({
         type:String,
         required:false
     },
-    email:{
+    userId:{
         type:String,
         required:true,
-        unique:true
     },
 })
 

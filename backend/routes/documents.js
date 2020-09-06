@@ -2,47 +2,55 @@ require('dotenv').config()
 const express = require('express')
 const router = express.Router()
 const Document = require('../models/document')
-const user = require('../models/user')
-const nodemailer = require('nodemailer');
-const credentials = require('../config')
-// const { Document } = require('mongoose')
+const jwt = require('jsonwebtoken');
+const token_secret = process.env.TOKEN_SECRET
+const User = require('../models/user')
+const { redirectLogin } = require('../server')
 
 //Get all
-router.post('/fetch', async (req, res) => {
+router.get('/fetch', async (req, res) => {
     try {
-        if(req.body.email==null){
-            throw new Error("Must be logged in!")
+        if (!req.session.userId) {
+            res.sendStatus(403).send("Trebuie sa fii logat pentru a putea accesa aceasta sectiune a paginii");
+        } else {
+            const userId = req.session.userId;
+            const docs = await Document.find({userId:userId})
+            res.json({docs}).status(200).send();
         }
-        const email = req.body.email;
-        const docs = await Document.find({email:email})
-        res.json(docs)
+
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
 })
 
 //Create one
-router.post('/', async (req, res) => {
-    const doc = new Document({
-        name: req.body.name,
-        author: req.body.author,
-        dateUploaded: req.body.dateUploaded,
-        email:req.body.email
-    })
-    // console.log(req.body)
-    try {
+router.post('/new', async (req, res) => {
+    if (req.body === null) {
+        res.status(400).json(new Error("Must have data when creating a new document!"))
+    } else {
+        const doc = new Document({
+            name: req.body.name,
+            author: req.body.author,
+            dateUploaded: req.body.dateUploaded,
+            userId: req.body.userId
+        })
         const newDoc = await doc.save()
         res.status(201).json(newDoc)
-    } catch (err) {
-        res.status(400).json({ message: err.message })
     }
 })
 
 //Delete one
 router.delete('/:name', getDoc, async (req, res) => {
     try {
-        await res.doc.remove()
-        res.json({ message: "Document deleted" })
+        jwt.verify(req.cookies.token, token_secret, async (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            } else {
+                await res.doc.remove()
+                res.json({ message: "Document deleted" })
+            }
+        })
+
     } catch (err) {
         res.status(500).json({ message: err.message })
     }

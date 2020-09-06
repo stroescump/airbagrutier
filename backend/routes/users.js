@@ -2,10 +2,10 @@ require('dotenv').config()
 const express = require('express')
 const router = express.Router()
 const User = require('../models/user')
-const user = require('../models/user')
 const nodemailer = require('nodemailer');
 const credentials = require('../config')
 const cors = require('cors')
+const { signAccessToken } = require('../jwt_helper')
 
 router.use(cors())
 
@@ -20,14 +20,6 @@ let transport = {
 
 let transporter = nodemailer.createTransport(transport)
 
-// transporter.verify((err, succes) => {
-//     if (err) {
-//         console.log(err);
-//     } else {
-//         console.log('Server is ready to recieve messages!');
-//     }
-// })
-
 //Get all
 router.get('/', async (req, res) => {
     try {
@@ -37,38 +29,23 @@ router.get('/', async (req, res) => {
         res.status(500).json({ message: err.message })
     }
 })
-//Get one
-router.get('/:id', getUser, (req, res) => {
-    res.json(res.user)
-})
-//Create one
-router.post('/', async (req, res) => {
-    const user = new User({
-        name: req.body.name,
-        phone: req.body.phone,
-        email: req.body.email,
-        token: req.body.token
-    })
-    // console.log(req.body)
-    try {
-        const newUser = await user.save()
-        res.status(201).json(newUser)
-    } catch (err) {
-        res.status(400).json({ message: err.message })
-    }
-})
+
+
 
 //Login TOTP
 router.post('/login', async (req, res) => {
     var totp = require('deathmoon-totp-generator');
     try {
         const user = await User.findOne({
-            email:req.body.email
+            email: req.body.email
         })
+        if(user==null){
+            res.sendStatus(404).json("Register first!")
+        }
         var token = totp('3adf4bbafdd5eaaca21d446ce8b7d45a7ad638ea5b294cff135dccea896426', { time: new Date() });
         var content = `Va rugam sa va autentificati folosind acest cod: ` + token;
-        console.log(user)
-        user.token=token
+        // console.log(user)
+        user.token = token
         const updatedUser = await user.save()
         console.log(updatedUser)
 
@@ -89,10 +66,9 @@ router.post('/login', async (req, res) => {
             }
         })
     } catch (err) {
-        console.log(err);
+        console.log(err)
     }
 })
-
 
 
 //Update one
@@ -121,7 +97,7 @@ router.patch('/:id', getUser, async (req, res) => {
     }
 
 })
-//Delete one
+
 router.delete('/:id', getUser, async (req, res) => {
     try {
         await res.user.remove()
