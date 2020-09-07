@@ -7,9 +7,14 @@ const Task = require('../models/task')
 //Get all
 router.get('/', async (req, res) => {
     try {
-        const tasks = await Task.find(task => task.userId === req.session.userId)
+        if(!req.session.userId){
+            return res.sendStatus(404);
+        }
+        const tasks = await Task.find({
+            userId:req.session.userId
+        })
         if (tasks !== null) {
-            res.json(tasks).sendStatus(200);
+            res.status(200).json({tasks});
         }
     } catch (err) {
         res.status(500).json({ message: err.message })
@@ -17,7 +22,7 @@ router.get('/', async (req, res) => {
 })
 
 //Create one
-router.post('/', async (req, res) => {
+router.post('/new', async (req, res) => {
     const task = new Task({
         taskName: req.body.taskName,
         taskLegalRepresentative: req.body.taskLegalRepresentative,

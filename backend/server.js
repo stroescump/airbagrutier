@@ -7,7 +7,6 @@ const nodemailer = require('nodemailer');
 const credentials = require('./config');
 const User = require('./models/user');
 const user = require('./models/user');
-const multer = require('multer');
 const cookieParser = require('cookie-parser')
 const path = require('path');
 const session = require('express-session')
@@ -56,32 +55,6 @@ const sessionStore = new MongoStore({
     mongooseConnection: db,
     collection: 'sessions'
 });
-
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads');
-    },
-    filename: (req, file, cb) => {
-        console.log(file);
-        cb(null, file.originalname);
-    }
-});
-
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype == 'image/jpeg' ||
-        file.mimetype == 'image/png' ||
-        file.mimetype == 'application/pdf' ||
-        file.mimetype == 'application/msword' ||
-        file.mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-        file.mimetype == 'application/vnd.ms-excel' ||
-        file.mimetype == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        file.mimetype == 'application/zip') {
-        cb(null, true);
-    } else {
-        cb(null, false);
-    }
-}
 
 app.use(session({
     name: "airbag",
@@ -293,19 +266,4 @@ app.post('/sendMessage', async (req, res, next) => {
     })
 })
 
-const redirectLogin = (req, res, next) => {
-    if (!req.session.userId) {
-        res.redirect('/users/login')
-    }
-    next();
-}
-
-const upload = multer({ storage: storage, fileFilter: fileFilter });
-
-app.post('/incarca-documente', upload.single('file'), redirectLogin, (req, res) => {
-    const payload = req.payload;
-    res.json({ payload })
-})
 app.listen(process.env.PORT)
-
-exports.redirectLogin = redirectLogin

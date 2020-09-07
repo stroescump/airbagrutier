@@ -5,7 +5,31 @@ const Document = require('../models/document')
 const jwt = require('jsonwebtoken');
 const token_secret = process.env.TOKEN_SECRET
 const User = require('../models/user')
-const { redirectLogin } = require('../server')
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads');
+    },
+    filename: (req, file, cb) => {
+        console.log(file);
+        cb(null, file.originalname);
+    }
+});
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype == 'image/jpeg' ||
+        file.mimetype == 'image/png' ||
+        file.mimetype == 'application/pdf' ||
+        file.mimetype == 'application/msword' ||
+        file.mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        file.mimetype == 'application/vnd.ms-excel' ||
+        file.mimetype == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        file.mimetype == 'application/zip') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+}
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 //Get all
 router.get('/fetch', async (req, res) => {
@@ -14,8 +38,8 @@ router.get('/fetch', async (req, res) => {
             res.sendStatus(403);
         } else {
             const userId = req.session.userId;
-            const docs = await Document.find({userId:userId})
-            res.json({docs}).sendStatus(200);
+            const docs = await Document.find({ userId: userId })
+            res.status(200).json({ docs });
         }
 
     } catch (err) {
@@ -24,18 +48,23 @@ router.get('/fetch', async (req, res) => {
 })
 
 //Create one
-router.post('/new', async (req, res) => {
-    if (req.body === null) {
-        res.status(400).json(new Error("Must have data when creating a new document!"))
+router.post('/new', upload.single('file'), async (req, res) => {
+    if (!req.body.email || !req.file) {
+        res.status(400).json("Must have email and file when uploading!")
     } else {
+        const user = await User.findOne({ email: req.body.email })
+        console.log(req.file+" EMAIL: "+req.body.email)
+        const filePath = req.file.path.replace("\\", '/');
         const doc = new Document({
             name: req.body.name,
             author: req.body.author,
             dateUploaded: req.body.dateUploaded,
-            userId: req.body.userId
+            userId: user._id,
+            filePath: filePath
         })
         const newDoc = await doc.save()
         res.status(201).json(newDoc)
+        // res.sendStatus(201);
     }
 })
 

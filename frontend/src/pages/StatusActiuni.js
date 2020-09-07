@@ -1,12 +1,49 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Table } from 'react-bootstrap';
 import { ApplicationContext } from '../App'
-import {useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+import Axios from 'axios';
+import TaskTableElement from '../components/TaskTableElement';
+require('dotenv').config()
 
 export default function StatusActiuni() {
     let history = useHistory();
     const appContext = useContext(ApplicationContext);
-    const [email, setEmail] = useState(appContext.email);
+    const [tasks, setTasks] = useState([])
+
+    useEffect(() => {
+        const getAllTasks = async () => {
+            await Axios.get(
+                process.env.REACT_APP_GETTASKSURL
+            ).then(res => {
+                console.log(res.data.tasks)
+                if (res.status === 200 && res.data !== null) {
+                    setTasks(res.data.tasks)
+                }
+            }).then(()=>{
+            
+            })
+        };
+
+        getAllTasks();
+    
+    }, [])
+
+    function populateTableWithTasks() {
+        let i=0;
+        const entries=[];
+        tasks.forEach((task)=>{
+            entries.push(<TaskTableElement
+            nrCrt={++i}
+            taskName={task.taskName}
+            taskLegalRepresentative={task.taskLegalRepresentative}
+            taskObservations={task.taskObservations}
+            >
+            </TaskTableElement>)
+        })
+        return(entries)
+    }
+
     return (
         <>
             {appContext.isLogged == true ?
@@ -31,28 +68,11 @@ export default function StatusActiuni() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Proces OMNIASIG</td>
-                                <td>Catalin Lungu</td>
-                                <td>Instanta in pronuntare</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Proces LIBRA</td>
-                                <td>Catalin Lungu</td>
-                                <td>Instanta in pronuntare</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Proces ASIROM</td>
-                                <td>Catalin Lungu</td>
-                                <td>Instanta in pronuntare</td>
-                            </tr>
+                            {populateTableWithTasks()}
                         </tbody>
                     </Table>
                 </div>
-                :  history.push('/login')}
+                : history.push('/login')}
         </>
     )
 }

@@ -5,7 +5,9 @@ import bsCustomFileInput from 'bs-custom-file-input'
 import $ from 'jquery'
 import TableElement from '../components/TableElement';
 import { ApplicationContext } from '../App'
-import {useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+var FormData = require('form-data');
+const fs = require('fs');
 
 require('dotenv').config()
 
@@ -16,56 +18,66 @@ export default function IncarcaDocumente() {
     const [documents, setDocuments] = useState([])
     const isLogged = appContext.isLogged;
     const email = appContext.email;
+    const urlForUpload = process.env.REACT_APP_URL_UPLOADFILES
 
-    var i = 0;
+
     var payload;
 
     useEffect(() => {
         $(document).ready(function () {
             bsCustomFileInput.init()
         })
-        getAllFiles();
     }, []);
 
-    function addEntriesToTable() {
-        console.log(isLogged);
-        console.log(email);
-
-        documents.forEach(document => {
-            var tableElement = React.createElement(TableElement, {
-                nrCrt: ++i,
-                name: document.name,
-                author: document.author,
-                dateUploaded: new Date(document.dateUploaded).toLocaleDateString()
+    useEffect(() => {
+        const getAllFiles = async () => {
+            // console.log(process.env.REACT_APP_URL_GETFILES)
+            Axios.get(process.env.REACT_APP_URL_GETFILES).then((res) => {
+                setDocuments(res.data.docs)
             })
-            tableElements.push(tableElement)
+        }
+        getAllFiles();
+    }, [])
+
+    function addEntriesToTable() {
+        // console.log(isLogged);
+        // console.log(email);
+        var i = 0;
+        documents.forEach((document) => {
+
+            tableElements.push(<TableElement
+                nrCrt={++i}
+                name={document.name}
+                author={document.author}
+                dateUploaded={new Date(document.dateUploaded).toLocaleDateString()}
+            >
+            </TableElement>)
         });
         return tableElements;
     }
 
     function getAllFiles() {
-        console.log(process.env.REACT_APP_URL_GETFILES)
-        Axios.get(process.env.REACT_APP_URL_GETFILES).then((res) => {
-            setDocuments(res.data.docs)
-        })
+
     }
 
     function onClickUploadBtn(e) {
         e.preventDefault()
+        var data = new FormData(e.target);
+        console.log(data);
         const fileName = e.target.file.value.split("\\")
-        payload = {
-            name: fileName[2],
-            author: appContext.name,
-            dateUploaded: new Date().toLocaleDateString(),
-            email: email,
-        };
+        data.append('email', email);
+        data.append('name', fileName[2]);
+        data.append('author', appContext.name);
+        data.append('dateUploaded', new Date().toLocaleDateString());
+
+        for (var key of data.entries()) {
+            console.log(key[0] + ', ' + key[1]);
+        }
         Axios.post(
-            process.env.REACT_APP_URL_POSTFILES,
-            payload)
+            urlForUpload,
+            data)
 
     }
-
-    const urlForUpload = process.env.REACT_APP_URL_UPLOADFILES
     return (
         <>  {isLogged == true ?
             <div className="wrapper-verify-login">
@@ -89,8 +101,7 @@ export default function IncarcaDocumente() {
                 </Table>
                 <form
                     id='uploadForm'
-                    action={urlForUpload}
-                    method='post'
+                    method="POST"
                     onSubmit={onClickUploadBtn}
                     encType="multipart/form-data">
                     <div className="custom-file"
@@ -107,13 +118,14 @@ export default function IncarcaDocumente() {
                             style={{
                                 marginTop: "10px"
                             }} />
+
                         <label className="custom-file-label" for="customFile">Choose file</label>
                         <Button type='submit' variant="outline-primary" size="lg" block>Incarca</Button>
                     </div>
                 </form>
             </div>
             :
-                history.push('/login')}
+            history.push('/login')}
         </>
 
     );

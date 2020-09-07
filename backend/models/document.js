@@ -16,6 +16,10 @@ const documentSchema = new mongoose.Schema({
     userId:{
         type:String,
         required:true
+    },
+    filePath:{
+        type:String,
+        required:true
     }
 })
 

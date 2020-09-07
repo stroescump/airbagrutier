@@ -37,9 +37,6 @@ function App() {
         history.push('/status-actiuni')
       }
     })
-    if (isLogged === false) {
-      history.push('/login')
-    }
   }
 
   return (
@@ -48,6 +45,10 @@ function App() {
         <ApplicationContext.Provider value={{ isLogged, setIsLogged, email, setEmail, name, setName, jwt, setJwt }}>
           <Navigation></Navigation>
           {checkIfSessionValid()}
+          {() => {
+            if (isLogged === false)
+              history.push('/login')
+          }}
           <Route exact path="/" component={Acasa} />
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
