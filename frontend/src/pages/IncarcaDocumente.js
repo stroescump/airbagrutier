@@ -5,10 +5,12 @@ import bsCustomFileInput from 'bs-custom-file-input'
 import $ from 'jquery'
 import TableElement from '../components/TableElement';
 import { ApplicationContext } from '../App'
+import {useHistory } from 'react-router-dom'
 
 require('dotenv').config()
 
 export default function IncarcaDocumente() {
+    let history = useHistory();
     const appContext = useContext(ApplicationContext)
     const [tableElements, setTableElements] = useState([])
     const [documents, setDocuments] = useState([])
@@ -38,7 +40,6 @@ export default function IncarcaDocumente() {
             })
             tableElements.push(tableElement)
         });
-        // setDocuments(documents.splice(0,documents.length));
         return tableElements;
     }
 
@@ -46,14 +47,10 @@ export default function IncarcaDocumente() {
         console.log(process.env.REACT_APP_URL_GETFILES)
         Axios.get(process.env.REACT_APP_URL_GETFILES).then((res) => {
             setDocuments(res.data.docs)
-            // console.log(this.state.documents)
         })
     }
 
     function onClickUploadBtn(e) {
-        // $(document.querySelectorAll('#tableDocument')).remove();
-        // getAllFiles();
-        // addEntriesToTable();
         e.preventDefault()
         const fileName = e.target.file.value.split("\\")
         payload = {
@@ -62,22 +59,11 @@ export default function IncarcaDocumente() {
             dateUploaded: new Date().toLocaleDateString(),
             email: email,
         };
-        // console.log(payload)
         Axios.post(
             process.env.REACT_APP_URL_POSTFILES,
             payload)
 
     }
-
-    // function addingTabs(payload) {
-    //     var tableElement = React.createElement(TableElement, {
-    //         nrCrt: ++i,
-    //         name: payload.name,
-    //         author: payload.email,
-    //         dateUploaded: payload.dateUploaded
-    //     })
-    //     return tableElement;
-    // }
 
     const urlForUpload = process.env.REACT_APP_URL_UPLOADFILES
     return (
@@ -127,12 +113,7 @@ export default function IncarcaDocumente() {
                 </form>
             </div>
             :
-            <div style={{
-                marginTop: "20px",
-                textAlign: "center"
-            }}>
-                <h2>Trebuie sa fii logat pentru a putea incarca documente.</h2>
-            </div>}
+                history.push('/login')}
         </>
 
     );

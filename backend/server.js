@@ -6,6 +6,7 @@ const cors = require('cors')
 const nodemailer = require('nodemailer');
 const credentials = require('./config');
 const User = require('./models/user');
+const user = require('./models/user');
 const multer = require('multer');
 const cookieParser = require('cookie-parser')
 const path = require('path');
@@ -32,8 +33,13 @@ transporter.verify((err, succes) => {
 })
 
 app.use(cors({
-    // credentials:true
+    // credentials:true,
 }));
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+    next();
+  });
 
 app.use(express.json());
 
@@ -89,13 +95,11 @@ app.use(session({
 }
 ))
 
-const usersRouter = require('./routes/users')
 const documentsRouter = require('./routes/documents')
 const tasksRouter = require('./routes/tasks')
-const user = require('./models/user')
 
 app.use('/documents', documentsRouter)
-app.use('/tasks', usersRouter)
+app.use('/tasks', tasksRouter)
 
 app.get('/',(req,res)=>{
     res.redirect('/createSession')
@@ -134,14 +138,17 @@ app.get('/users', async (req, res) => {
 app.post('/login', async (req, res) => {
     var totp = require('deathmoon-totp-generator');
     try {
+        const user = await User.findOne({
+            email:req.body.email
+        })
         var token = totp('3adf4bbafdd5eaaca21d446ce8b7d45a7ad638ea5b294cff135dccea896426', { time: new Date() });
         var content = `Va rugam sa va autentificati folosind acest cod: ` + token;
-        user.token = token
+        user.token=token
         const updatedUser = await user.save()
         console.log(updatedUser)
 
         var mail = {
-            from: "office@thevide.ro",
+            from: 'office@thevide.ro',
             to: req.body.email,
             subject: `Cod de autentificare AIRBAG RUTIER`,
             text: content
@@ -157,7 +164,7 @@ app.post('/login', async (req, res) => {
             }
         })
     } catch (err) {
-        // console.log(err)
+        console.log(err);
     }
 })
 
@@ -252,7 +259,6 @@ app.post('/register', async (req, res) => {
         email: req.body.email,
         token: req.body.token
     })
-    // console.log(req.body)
     try {
         const newUser = await user.save()
         if (newUser != null) {
@@ -300,6 +306,6 @@ app.post('/incarca-documente', upload.single('file'), redirectLogin, (req, res) 
     const payload = req.payload;
     res.json({ payload })
 })
-app.listen(process.env.PORT || '3000')
+app.listen(process.env.PORT)
 
 exports.redirectLogin = redirectLogin

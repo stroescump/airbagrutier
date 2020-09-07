@@ -1,8 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { Table } from 'react-bootstrap';
 import { ApplicationContext } from '../App'
+import {useHistory } from 'react-router-dom'
 
 export default function StatusActiuni() {
+    let history = useHistory();
     const appContext = useContext(ApplicationContext);
     const [email, setEmail] = useState(appContext.email);
     return (
@@ -50,12 +52,7 @@ export default function StatusActiuni() {
                         </tbody>
                     </Table>
                 </div>
-                : <div style={{
-                    marginTop:"20px",
-                    textAlign: "center"
-                }}>
-                    <h2>Trebuie sa fii logat pentru a putea vizualiza statusul actiunilor.</h2>
-                </div>}
+                :  history.push('/login')}
         </>
     )
 }

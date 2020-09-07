@@ -45,7 +45,7 @@ function Navigation() {
                   
                 }
               }} class="dropdown-item">{isLogged === true ? "Log out" : "Login"}</Link>
-              {console.log(isLogged)}
+              {/* {console.log(isLogged)} */}
               {isLogged === true ? "" : <Link to="/register" class="dropdown-item">Inregistrare</Link>}
               {isLogged === true ? <Link to="/incarca-documente" class="dropdown-item">Incarca document</Link> : ""}
               {isLogged === true ? <Link to="/status-actiuni" class="dropdown-item">Status actiuni</Link> : ""}

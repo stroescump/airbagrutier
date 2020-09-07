@@ -11,11 +11,11 @@ const { redirectLogin } = require('../server')
 router.get('/fetch', async (req, res) => {
     try {
         if (!req.session.userId) {
-            res.sendStatus(403).send("Trebuie sa fii logat pentru a putea accesa aceasta sectiune a paginii");
+            res.sendStatus(403);
         } else {
             const userId = req.session.userId;
             const docs = await Document.find({userId:userId})
-            res.json({docs}).status(200).send();
+            res.json({docs}).sendStatus(200);
         }
 
     } catch (err) {

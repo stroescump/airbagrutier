@@ -36,7 +36,7 @@ export default function Login() {
         email: email,
         token: token,
       },{
-        withCredentials:true
+        // withCredentials:true,
       }).then((res, err) => {
         // console.log(res);
         if (res.status == 200) {

@@ -23,43 +23,42 @@ function App() {
   const [isLogged, setIsLogged] = useState(false)
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
-  const [jwt,setJwt] = useState('')
+  const [jwt, setJwt] = useState('')
 
-  function checkIfSessionValid(){
+  function checkIfSessionValid() {
     Axios.get(
       "/createSession",
-    ).then(res=>{
-      if(res.status==404){
-        history.push('/login')
-      }
-      if(res.status===200 &&
-        res.data!==null || res.data!==undefined){
-        console.log(res.data.isLogged)
+    ).then(res => {
+      if (res.status === 200 &&
+        res.data !== null || res.data !== undefined) {
         setIsLogged(res.data.isLogged);
         setEmail(res.data.email);
         setName(res.data.name);
-        history.push('/status-documente')       
+        history.push('/status-actiuni')
       }
-    })    
+    })
+    if (isLogged === false) {
+      history.push('/login')
+    }
   }
 
   return (
-      <div className="App">
-        <header className="App-header">          
-          <ApplicationContext.Provider value={{ isLogged, setIsLogged, email, setEmail, name, setName, jwt, setJwt }}>
-            <Navigation></Navigation>
-            {checkIfSessionValid()}
-            <Route exact path="/" component={Acasa} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/register" component={Register} />
-            <Route exact path="/incarca-documente" component={IncarcaDocumente} />
-            <Route exact path="/status-actiuni" component={StatusActiuni} />
-            <Route exact path="/echipa" component={Echipa} />
-            <Route exact path="/contact" component={Contact} />
-            <Route exact path="/notfound" component={NotFound} />
-          </ApplicationContext.Provider>
-        </header>
-      </div>  
+    <div className="App">
+      <header className="App-header">
+        <ApplicationContext.Provider value={{ isLogged, setIsLogged, email, setEmail, name, setName, jwt, setJwt }}>
+          <Navigation></Navigation>
+          {checkIfSessionValid()}
+          <Route exact path="/" component={Acasa} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/register" component={Register} />
+          <Route exact path="/incarca-documente" component={IncarcaDocumente} />
+          <Route exact path="/status-actiuni" component={StatusActiuni} />
+          <Route exact path="/echipa" component={Echipa} />
+          <Route exact path="/contact" component={Contact} />
+          <Route exact path="/notfound" component={NotFound} />
+        </ApplicationContext.Provider>
+      </header>
+    </div>
   )
 }
 export default App
